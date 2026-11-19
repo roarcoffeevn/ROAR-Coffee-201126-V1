@@ -593,16 +593,30 @@ export async function handleStaticApiFallback(
 
     if (pathname === '/api/admin/overview') {
       const products = snap?.tables?.products || [];
+      const articles = snap?.tables?.journal_articles || [];
+      const revenue = state.orders.reduce((s, o) => s + Number(o.total || 0), 0);
+      const totalOrders = state.orders.length;
+      const avgOrderValue = totalOrders > 0 ? Math.round(revenue / totalOrders) : 0;
+      const members = state.users.filter((x) => x.role !== 'admin').length;
+      const pointsIssued = state.users.reduce((s, x) => s + Number(x.points || 0), 0);
       return jsonResponse({
         metrics: {
-          totalOrders: state.orders.length,
-          grossRevenueVnd: state.orders.reduce((s, o) => s + Number(o.total || 0), 0),
-          customers: state.users.filter((x) => x.role !== 'admin').length,
+          revenue,
+          avgOrderValue,
+          totalOrders,
+          grossRevenueVnd: revenue,
+          members,
+          customers: members,
+          pointsIssued,
+          products: products.length,
+          articles: articles.length,
           b2bInquiries: state.b2bInquiries.length,
           newsletterCount: state.newsletterSubscribers.length,
           activeProducts: products.filter((p: any) => p.status !== 'draft').length,
         },
+        revenueByCategory: [],
         recentOrders: state.orders.slice(0, 5),
+        topProducts: [],
       });
     }
     if (pathname === '/api/admin/products' && method === 'GET') {

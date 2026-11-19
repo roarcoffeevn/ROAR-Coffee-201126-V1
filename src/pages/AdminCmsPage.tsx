@@ -1079,10 +1079,10 @@ export const AdminCmsPage: React.FC = () => {
                     <div className="bg-white p-3 sm:p-5 rounded-xl border border-slate-200">
                       <span className="text-[11px] sm:text-xs font-medium text-slate-500">{t('Tổng doanh thu', 'Total Revenue')}</span>
                       <p className="text-lg sm:text-2xl font-bold font-mono tabular-nums mt-0.5 sm:mt-1 text-slate-900 truncate">
-                        {overview.metrics.revenue.toLocaleString()} ₫
+                        {Number(overview.metrics?.revenue || 0).toLocaleString()} ₫
                       </p>
                       <p className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 sm:mt-1 tabular-nums truncate">
-                        {t('TB đơn:', 'Avg:')} {overview.metrics.avgOrderValue.toLocaleString()} ₫
+                        {t('TB đơn:', 'Avg:')} {Number(overview.metrics?.avgOrderValue || 0).toLocaleString()} ₫
                       </p>
                     </div>
                     <div className="bg-white p-3 sm:p-5 rounded-xl border border-slate-200">
