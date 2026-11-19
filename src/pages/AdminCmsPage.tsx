@@ -59,8 +59,9 @@ import { ProductEditorModal } from '../components/admin/ProductEditorModal';
 import { JournalManagerSection, type JournalAdminArticle } from '../components/admin/JournalManagerSection';
 import { PagesManagerSection } from '../components/admin/PagesManagerSection';
 import { TeamRbacSection, type AdminTeamMember, type NonAdminCandidate } from '../components/admin/TeamRbacSection';
+import { AdminMenuCategoryManager } from '../components/admin/AdminMenuCategoryManager';
 
-type CmsSection = AdminPermission;
+type CmsSection = AdminPermission | 'menus';
 
 const CATEGORY_LABELS_VI: Record<string, string> = {
   roasted: 'Cà phê Rang xay',
@@ -267,7 +268,12 @@ export const AdminCmsPage: React.FC = () => {
   }, [isAdmin, user?.id, user?.adminRole, JSON.stringify(user?.adminPermissions || [])]);
 
   useEffect(() => {
-    if (requestedSectionParam && hasAdminPermission(user, requestedSectionParam)) {
+    if (
+      requestedSectionParam &&
+      (requestedSectionParam === 'menus'
+        ? hasAdminPermission(user, 'settings')
+        : hasAdminPermission(user, requestedSectionParam))
+    ) {
       setSection(requestedSectionParam);
     }
   }, [requestedSectionParam, user?.adminRole, JSON.stringify(user?.adminPermissions || [])]);
@@ -799,6 +805,7 @@ export const AdminCmsPage: React.FC = () => {
           count: inquiries.length + newsletterSubscribers.length,
         },
         { id: 'brand', label: t('Linh vật & Vùng trồng', 'Mascots & Origins'), icon: <Compass className="w-4 h-4" /> },
+        { id: 'menus', label: t('Menu & Danh mục', 'Menus & Categories'), icon: <Menu className="w-4 h-4" /> },
         { id: 'settings', label: t('Cài đặt Website', 'Site Settings'), icon: <Settings className="w-4 h-4" /> },
         {
           id: 'team',
@@ -813,7 +820,9 @@ export const AdminCmsPage: React.FC = () => {
   const navGroups = rawNavGroups
     .map((grp) => ({
       ...grp,
-      items: grp.items.filter((item) => hasAdminPermission(user, item.id)),
+      items: grp.items.filter((item) =>
+        item.id === 'menus' ? hasAdminPermission(user, 'settings') : hasAdminPermission(user, item.id)
+      ),
     }))
     .filter((grp) => grp.items.length > 0);
 
@@ -2450,6 +2459,14 @@ export const AdminCmsPage: React.FC = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* 9b. WORDPRESS-STYLE MENUS & CATEGORIES */}
+          {resolvedSection === 'menus' && hasAdminPermission(user, 'settings') && (
+            <AdminMenuCategoryManager
+              settings={siteSettings}
+              onSaved={(next) => setSiteSettings(next)}
+            />
           )}
 
           {/* 10. SITE SETTINGS & GITHUB PORTABILITY SNAPSHOT */}
